@@ -9,7 +9,6 @@ from datetime import datetime
 
 key = "E49756B4C8FAB4E48222A3E7F3B97CC3"
 byte_key = binascii.unhexlify(key)
-print(type(hmac.new(byte_key, "message".encode('utf8'), hashlib.sha256).hexdigest().upper()))
 
 def create_jwt(exp = 5 * 60 * 1000) -> dict:
     jwt: dict = {}
@@ -59,6 +58,8 @@ def verify_jwt(token) -> bool:
     payload: dict = json.loads(payload_string)
     if payload["exp"] < datetime.now().timestamp():
         return False
+    else:
+        return True
     
 def extract_claim(token, claim: str):
     [header_part, payload_part, signature_part] = token.split(".")
@@ -76,9 +77,8 @@ def extract_claim(token, claim: str):
     else:
         raise Exception("Claim " + claim + " is not set")
 
-verify_jwt(token)
-print(extract_claim(token, "exp"))
-print(extract_claim(token, "id"))
+
+
 
 
 
