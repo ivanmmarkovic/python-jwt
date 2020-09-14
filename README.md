@@ -1,33 +1,46 @@
 # python-jwt
 JWT implementation in Python - work in progress
 
-#### Create JWT
-- returns dict type
-- expiration time is set to 5 minutes, by default
+### Create jwt
+
+First create jwt.
+Use *create_jwt* function. This function returns dictionary type. Expiration time is set to 5 minutes. You can specify different expiration time in milliseconds.
+For example, if you use 
 
 ```
-
 jwt: dict = create_jwt()
 
 ```
 
-#### Add claims
-- id or role for example
+expiration time is set to 5 minutes. Here is set to 30 minutes :
+
+```
+
+jwt: dict = create_jwt(30 * 60 * 1000) # milliseconds
+
+```
+
+To add different claims, for example id or username use *add_claim* function. First argument is jwt returned from *create_jwt* function, second argument is claim(must be string type) and third is value.
 
 ```
 
 add_claim(jwt, "id", 12)
 
 ```
-#### Create token
-- returns token
+
+Function *sign_jwt*, takes jwt and returns string type. That's token.
 
 ```
 
-token = sign_jwt(jwt)
+sign_jwt(jwt)
 
 ```
-#### Verify token
+
+You can send this token to user.
+
+### Validation
+
+When performing validation, extract token from user and pass it to *verify_jwt* function. This function return boolean type.
 
 ```
 
@@ -35,11 +48,27 @@ verify_jwt(token: str) -> bool
 
 ```
 
-#### Extract claim
-- extract id or role, for example
+### Extracting data from token
+
+To extract data from token use *extract_claim* function. First argument is token, second is claim(must be string type).
 
 ```
 
-extract_claim(token, claim)
+extract_claim(token, claim: str):
 
 ```
+
+### Note
+
+String key which is used for hashing, should be loaded from external file, not like this :
+
+```
+
+key = "E49756B4C8FAB4E48222A3E7F3B97CC3"
+
+```
+
+### Todo
+
+Add expiration time update, on each validation.
+
