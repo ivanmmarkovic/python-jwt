@@ -5,7 +5,7 @@ from pyjwt import sign_jwt
 from pyjwt import verify_jwt
 from pyjwt import extract_jwt
 from pyjwt import extract_claim
-from pyjwt import add_expiration
+from pyjwt import add_expiration_time
 
 jwt: dict = create_jwt()
 add_claim(jwt, "id", 1)
@@ -37,7 +37,7 @@ print(type(jwt_extracted), jwt_extracted)
 }
 '''
 add_claim(jwt_extracted, "id", 2)
-add_expiration(jwt_extracted, 5 * 60 * 1000)
+add_expiration_time(jwt_extracted, 5 * 60 * 1000)
 token = sign_jwt(jwt_extracted)
 jwt_extracted = extract_jwt(token)
 print(jwt_extracted)

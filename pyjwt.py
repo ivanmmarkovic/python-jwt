@@ -21,7 +21,7 @@ def create_jwt(exp = 5 * 60 * 1000) -> dict:
 
 jwt = create_jwt()
 
-def add_expiration(jwt: dict, interval_milliseconds: int):
+def add_expiration_time(jwt: dict, interval_milliseconds: int):
     jwt["payload"]["exp"] = datetime.now().timestamp() + interval_milliseconds
 
 def add_claim(jwt: dict, claim: str, value):
