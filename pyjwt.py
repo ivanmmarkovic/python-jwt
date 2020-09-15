@@ -60,6 +60,21 @@ def verify_jwt(token) -> bool:
         return False
     else:
         return True
+
+def extract_jwt(token) -> dict:
+    [header_part, payload_part, signature_part] = token.split(".")
+    header_encoded = header_part.encode('utf8')
+    header_bytes = base64.b64decode(header_encoded)
+    header_string = header_bytes.decode('utf8')
+    
+    payload_encoded = payload_part.encode('utf8')
+    payload_bytes = base64.b64decode(payload_encoded)
+    payload_string = payload_bytes.decode('utf8')
+
+    jwt: dict = {}
+    jwt["header"] = json.loads(header_string)
+    jwt["payload"] = json.loads(payload_string)
+    return jwt
     
 def extract_claim(token, claim: str):
     [header_part, payload_part, signature_part] = token.split(".")
@@ -76,8 +91,6 @@ def extract_claim(token, claim: str):
         return payload[claim]
     else:
         raise Exception("Claim " + claim + " is not set")
-
-
 
 
 
