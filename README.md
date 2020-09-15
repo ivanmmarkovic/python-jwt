@@ -54,9 +54,23 @@ To extract data from token use *extract_claim* function. First argument is token
 
 ```
 
-extract_claim(token, claim: str):
+extract_claim(token, claim: str)
 
 ```
+
+### Extract jwt from token
+
+You can extract jwt as a dictionary from token with *extract_jwt* function which takes token as argument. Then you can set expiration time or overwrite other claims.
+
+```
+jwt_extracted: dict = extract_jwt(token)
+print(type(jwt), jwt)
+add_claim(jwt_extracted, "exp", 5 * 60 * 1000)
+token = sign_jwt(jwt)
+
+```
+
+With *sign_jwt* you can obtain token and send it to user. Expiration time will be updated.
 
 ### Note
 
@@ -67,8 +81,3 @@ String key which is used for hashing, should be loaded from external file, not l
 key = "E49756B4C8FAB4E48222A3E7F3B97CC3"
 
 ```
-
-### Todo
-
-Add expiration time update, on each validation.
-
