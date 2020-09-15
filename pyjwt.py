@@ -21,6 +21,9 @@ def create_jwt(exp = 5 * 60 * 1000) -> dict:
 
 jwt = create_jwt()
 
+def add_expiration(jwt: dict, interval_milliseconds: int):
+    jwt["payload"]["exp"] = datetime.now().timestamp() + interval_milliseconds
+
 def add_claim(jwt: dict, claim: str, value):
     jwt["payload"][claim] = value
 
@@ -38,7 +41,6 @@ def sign_jwt(jwt: dict) -> str:
     signature = hmac.new(byte_key, (header_encoded.decode('utf8') + "." + payload_encoded.decode('utf8')).encode('utf8'), hashlib.sha256).hexdigest().upper()
     return header_encoded.decode('utf8') + "." + payload_encoded.decode('utf8') + "." + signature
 
-token = sign_jwt(jwt)
 
 def verify_jwt(token) -> bool:
     [header_part, payload_part, signature_part] = token.split(".")

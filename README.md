@@ -20,6 +20,14 @@ jwt: dict = create_jwt(30 * 60 * 1000) # milliseconds
 
 ```
 
+Or you can use *add_expiration* function to set expiration time:
+
+```
+
+add_expiration(jwt: dict, expiration_time_in_milliseconds: int)
+
+```
+
 To add different claims, for example id or username use *add_claim* function. First argument is jwt returned from *create_jwt* function, second argument is claim(must be string type) and third is value.
 
 ```
@@ -63,10 +71,13 @@ extract_claim(token, claim: str)
 You can extract jwt as a dictionary from token with *extract_jwt* function which takes token as argument. Then you can set expiration time or overwrite other claims.
 
 ```
+
 jwt_extracted: dict = extract_jwt(token)
-print(type(jwt), jwt)
-add_claim(jwt_extracted, "exp", 5 * 60 * 1000)
-token = sign_jwt(jwt)
+add_claim(jwt_extracted, "id", 2)
+add_expiration(jwt_extracted, 5 * 60 * 1000)
+token = sign_jwt(jwt_extracted)
+jwt_extracted = extract_jwt(token)
+print(jwt_extracted)
 
 ```
 

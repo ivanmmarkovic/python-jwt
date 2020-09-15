@@ -5,6 +5,7 @@ from pyjwt import sign_jwt
 from pyjwt import verify_jwt
 from pyjwt import extract_jwt
 from pyjwt import extract_claim
+from pyjwt import add_expiration
 
 jwt: dict = create_jwt()
 add_claim(jwt, "id", 1)
@@ -14,7 +15,7 @@ print(jwt)
 '''
 {
     'header': {'alg': 'HS256', 'typ': 'JWT'}, 
-    'payload': {'exp': 1600427128.483922, 'id': 1, 'username': 'John'}
+    'payload': {'exp': 1600429051.799972, 'id': 1, 'username': 'John'}
 }
 '''
 
@@ -24,26 +25,27 @@ print(type(token)) # <class 'str'>
 print(verify_jwt(token)) # True
 
 id: int = extract_claim(token, "id")
-print(id)
+print(id) # 1
 
 jwt_extracted: dict = extract_jwt(token)
-print(type(jwt), jwt)
+print(type(jwt_extracted), jwt_extracted)
 '''
 <class 'dict'> 
 {
     'header': {'alg': 'HS256', 'typ': 'JWT'}, 
-    'payload': {'exp': 1600427537.49819, 'id': 1, 'username': 'John'}
+    'payload': {'exp': 1600429051.799972, 'id': 1, 'username': 'John'}
 }
 '''
-add_claim(jwt_extracted, "exp", 5 * 60 * 1000)
-token = sign_jwt(jwt)
+add_claim(jwt_extracted, "id", 2)
+add_expiration(jwt_extracted, 5 * 60 * 1000)
+token = sign_jwt(jwt_extracted)
 jwt_extracted = extract_jwt(token)
 print(jwt_extracted)
 '''
 {
     'header': {'alg': 'HS256', 'typ': 'JWT'}, 
-    'payload': {'exp': 1600427704.153016, 'id': 1, 'username': 'John'}
-}
+    'payload': {'exp': 300000, 'id': 2, 'username': 'John'}}
+
 '''
 
 
