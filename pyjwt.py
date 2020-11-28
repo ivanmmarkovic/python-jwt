@@ -1,3 +1,4 @@
+
 import hmac
 import hashlib
 import binascii
@@ -10,91 +11,85 @@ from datetime import datetime
 key = "E49756B4C8FAB4E48222A3E7F3B97CC3"
 byte_key = binascii.unhexlify(key)
 
-def create_jwt(exp = 5 * 60 * 1000) -> dict:
-    jwt: dict = {}
-    jwt["header"]: dict = {}
-    jwt["header"]["alg"] = "HS256"
-    jwt["header"]["typ"] = "JWT"
-    jwt["payload"]: dict = {}
-    jwt["payload"]["exp"] = datetime.now().timestamp() + exp
-    return jwt
 
-jwt = create_jwt()
+# creates dictionary object
+def create_jwt(exp: int = 60 * 60 * 1000) -> dict:
+    return {
+        "header": {
+            "alg": "HS256",
+            "typ": "JWT"
+        },
+        "payload": {
+            "exp": datetime.now().timestamp() + exp
+        }
+    }
 
-def add_expiration_time(jwt: dict, interval_milliseconds: int):
+
+def add_expiration_time(jwt: dict, interval_milliseconds: int = 60 * 60 * 1000):
     jwt["payload"]["exp"] = datetime.now().timestamp() + interval_milliseconds
 
-def add_claim(jwt: dict, claim: str, value):
+
+def add_claim(jwt: dict, claim, value):
     jwt["payload"][claim] = value
 
-add_claim(jwt, "id", 12)
+
+# use this to encode header and payload
+def encode_jwt_part(jwt_part: dict) -> bytes:
+    jwt_part_string: str = json.dumps(jwt_part)
+    bytes_object: bytes = jwt_part_string.encode('utf-8')
+    return base64.b64encode(bytes_object)
+
 
 def sign_jwt(jwt: dict) -> str:
-    header_string = json.dumps(jwt["header"]) 
-    header_bytes = header_string.encode('utf8')
-    header_encoded = base64.b64encode(header_bytes)
+    header_encoded: bytes = encode_jwt_part(jwt["header"])
+    payload_encoded: bytes = encode_jwt_part(jwt["payload"])
 
-    payload_string = json.dumps(jwt["payload"]) 
-    payload_bytes = payload_string.encode('utf8')
-    payload_encoded = base64.b64encode(payload_bytes)
+    header_decoded: str = header_encoded.decode('utf-8')
+    payload_decoded: str = payload_encoded.decode('utf-8')
 
-    signature = hmac.new(byte_key, (header_encoded.decode('utf8') + "." + payload_encoded.decode('utf8')).encode('utf8'), hashlib.sha256).hexdigest().upper()
-    return header_encoded.decode('utf8') + "." + payload_encoded.decode('utf8') + "." + signature
+    signature: str = hmac.new(byte_key, (header_decoded + "." + payload_decoded).encode('utf-8'), hashlib.sha256)\
+        .hexdigest().upper()
+    return header_decoded + "." + payload_decoded + "." + signature
 
 
-def verify_jwt(token) -> bool:
-    [header_part, payload_part, signature_part] = token.split(".")
-    header_encoded = header_part.encode('utf8')
-    header_bytes = base64.b64decode(header_encoded)
-    header_string = header_bytes.decode('utf8')
-    
-    payload_encoded = payload_part.encode('utf8')
-    payload_bytes = base64.b64decode(payload_encoded)
-    payload_string = payload_bytes.decode('utf8')
-
-    signature = hmac.new(byte_key, (header_encoded.decode('utf8') + "." + payload_encoded.decode('utf8')).encode('utf8'), hashlib.sha256).hexdigest().upper()
-    
-    if signature_part != signature:
+def verify_jwt(token: str) -> bool:
+    [header_decoded, payload_decoded, signature_part] = token.split(".")
+    signature: str = hmac.new(byte_key, (header_decoded + "." + payload_decoded).encode('utf-8'), hashlib.sha256) \
+        .hexdigest().upper()
+    if signature != signature_part:
         return False
-    
-    payload: dict = json.loads(payload_string)
-    if payload["exp"] < datetime.now().timestamp():
+    payload_dict: dict = decode_jwt_part(payload_decoded)
+    if payload_dict["exp"] < datetime.now().timestamp():
         return False
     else:
         return True
 
-def extract_jwt(token) -> dict:
-    [header_part, payload_part, signature_part] = token.split(".")
-    header_encoded = header_part.encode('utf8')
-    header_bytes = base64.b64decode(header_encoded)
-    header_string = header_bytes.decode('utf8')
-    
-    payload_encoded = payload_part.encode('utf8')
-    payload_bytes = base64.b64decode(payload_encoded)
-    payload_string = payload_bytes.decode('utf8')
 
-    jwt: dict = {}
-    jwt["header"] = json.loads(header_string)
-    jwt["payload"] = json.loads(payload_string)
-    return jwt
-    
-def extract_claim(token, claim: str):
-    [header_part, payload_part, signature_part] = token.split(".")
-    header_encoded = header_part.encode('utf8')
-    header_bytes = base64.b64decode(header_encoded)
-    header_string = header_bytes.decode('utf8')
-    
-    payload_encoded = payload_part.encode('utf8')
-    payload_bytes = base64.b64decode(payload_encoded)
-    payload_string = payload_bytes.decode('utf8')
+# use this to decode payload or header from token to dictionary
+def decode_jwt_part(jwt_part: str) -> dict:
+    payload_encoded: bytes = jwt_part.encode('utf-8')
+    payload_bytes: bytes = base64.b64decode(payload_encoded)
+    payload_string: str = payload_bytes.decode('utf-8')
+    return json.loads(payload_string)
 
-    payload: dict = json.loads(payload_string)
-    if claim in payload:
-        return payload[claim]
-    else:
+
+def extract_jwt_dictionary_from_token(token: str) -> dict:
+    [header_decoded, payload_decoded, signature_part] = token.split(".")
+    header_dict: dict = decode_jwt_part(header_decoded)
+    payload_dict: dict = decode_jwt_part(payload_decoded)
+    return {
+        "header": header_dict,
+        "payload": payload_dict
+    }
+
+
+def extract_claim(token: str, claim):
+    [header_decoded, payload_decoded, signature_part] = token.split(".")
+    payload_dict: dict = decode_jwt_part(payload_decoded)
+    if claim not in payload_dict:
         raise Exception("Claim " + claim + " is not set")
-
-
+    else:
+        return payload_dict[claim]
 
 
 
