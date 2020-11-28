@@ -4,7 +4,7 @@ JWT implementation in Python - work in progress
 ### Create jwt
 
 First create jwt.
-Use *create_jwt* function. This function returns dictionary type. Expiration time is set to 5 minutes. You can specify different expiration time in milliseconds.
+Use *create_jwt* function. This function returns dictionary type. Expiration time is set to one hour. You can specify different expiration time in milliseconds.
 For example, if you use 
 
 ```
@@ -12,7 +12,7 @@ jwt: dict = create_jwt()
 
 ```
 
-expiration time is set to 5 minutes. Here is set to 30 minutes :
+expiration time is set to one hour. Here is set to 30 minutes :
 
 ```
 
@@ -24,11 +24,11 @@ Or you can use *add_expiration_time* function to set expiration time:
 
 ```
 
-add_expiration_time(jwt: dict, expiration_time_in_milliseconds: int)
+add_expiration_time(jwt: dict, interval_milliseconds: int)
 
 ```
 
-To add different claims, for example id or username use *add_claim* function. First argument is jwt returned from *create_jwt* function, second argument is claim(must be string type) and third is value.
+To add different claims, for example id or username use *add_claim* function. First argument is jwt returned from *create_jwt* function, second argument is claim and third is value.
 
 ```
 
@@ -62,13 +62,13 @@ To extract data from token use *extract_claim* function. First argument is token
 
 ```
 
-extract_claim(token, claim: str)
+extract_claim(token: str, claim)
 
 ```
 
 ### Extract jwt from token
 
-You can extract jwt as a dictionary from token with *extract_jwt* function which takes token as argument. Then you can set expiration time or overwrite other claims.
+You can extract jwt as a dictionary from token with *extract_jwt_dictionary_from_token* function which takes token as argument. Then you can set expiration time or overwrite other claims.
 
 ```
 
@@ -76,8 +76,6 @@ jwt_extracted: dict = extract_jwt(token)
 add_claim(jwt_extracted, "id", 2)
 add_expiration_time(jwt_extracted, 5 * 60 * 1000)
 token = sign_jwt(jwt_extracted)
-jwt_extracted = extract_jwt(token)
-print(jwt_extracted)
 
 ```
 
